@@ -1,0 +1,8 @@
+trello_config = {
+  key: 'YOUR-TRELLO-KEY',
+  token: 'YOUR-TRELLO-TOKEN'
+}
+
+mindmup_config = {
+  src_file: 'PATH-TO-MINDMUP'
+}
