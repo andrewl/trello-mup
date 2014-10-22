@@ -1,0 +1,12 @@
+{
+  "name": "trello-mup",
+    "version": "0.0.0",
+    "description": "Trello MindMup Integration",
+    "main": "trello-mup.js",
+    "dependencies": {
+      "nodegit": "0.1.4",
+      "node-trello": "*"
+    },
+    "license": "BSD",
+    "private": true
+}
