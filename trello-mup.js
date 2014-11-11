@@ -84,11 +84,19 @@ trello_mup_set_colours = function(trello, mindmup) {
 								console.log(err);
 								next;
 							}
-							if (board.name == 'ToDo') {
-								mindmup_set_colour(what, '#ff0000');
-							} else if (board.name == 'Doing') {
+							if (board.name == 'Doing') {
+								mindmup_set_colour(what, '#FFB6C1');
+							} else if (board.name == 'Code Review') {
 								mindmup_set_colour(what, '#ffff00');
-							} else if (board.name == 'Done') {
+							} else if (board.name == 'Dev Test') {
+								mindmup_set_colour(what, '#ffff00');
+							} else if (board.name == 'Awaiting  Release') {
+								mindmup_set_colour(what, '#CCFF99');
+							} else if (board.name == 'UAT') {
+								mindmup_set_colour(what, '#CCFF99');
+							} else if (board.name == 'Passed UAT') {
+								mindmup_set_colour(what, '#00ff00');
+							} else if (board.name == 'Deployed to Live') {
 								mindmup_set_colour(what, '#00ff00');
 							}
 							mindmup_save(mindmup_config, mindmup);
