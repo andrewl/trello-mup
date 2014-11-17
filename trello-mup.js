@@ -22,7 +22,7 @@ mindmup_get_attachment = function(mindmup_object) {
 	if (mindmup_object.attr.attachment === undefined) {
 		return;
 	}
-	return mindmup_object.attr.attachment;
+	return mindmup_object.attr.attachment.content;
 };
 
 mindmup_set_colour = function(mindmup_object, colour) {
@@ -121,7 +121,8 @@ add_mindmup_to_trello = function(trello, mindmup_node) {
 		var mindmup_id = mindmup_node.id;
 		mindmup_walk_tree(mindmup, function(mindmup_node) {
 			if (mindmup_node.id == mindmup_id) {
-				mindmup_node.attachment = card.url;
+				mindmup_node.attr.attachment.contentType = "text/html";
+				mindmup_node.attr.attachment.content = card.url;
 				mindmup_save(mindmup_config, mindmup);
 			}
 		});
