@@ -22,7 +22,7 @@ mindmup_get_attachment = function(mindmup_object) {
 	if (mindmup_object.attr.attachment === undefined) {
 		return;
 	}
-	return mindmup_object.attr.attachment.content;
+	return mindmup_object.attr.attachment;
 };
 
 mindmup_set_colour = function(mindmup_object, colour) {
@@ -90,10 +90,10 @@ trello_mup_set_colours = function(trello, mindmup) {
 								mindmup_set_colour(what, '#ffff00');
 							} else if (board.name == 'Dev Test') {
 								mindmup_set_colour(what, '#ffff00');
-							} else if (board.name == 'Awaiting  Release') {
-								mindmup_set_colour(what, '#CCFF99');
+							} else if (board.name == 'Awaiting Release') {
+								mindmup_set_colour(what, '#ffff00');
 							} else if (board.name == 'UAT') {
-								mindmup_set_colour(what, '#CCFF99');
+								mindmup_set_colour(what, '#ffff00');
 							} else if (board.name == 'Passed UAT') {
 								mindmup_set_colour(what, '#00ff00');
 							} else if (board.name == 'Deployed to Live') {
