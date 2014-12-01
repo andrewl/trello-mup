@@ -5,7 +5,8 @@
     "main": "trello-mup.js",
     "dependencies": {
       "nodegit": "0.1.4",
-      "node-trello": "*"
+      "node-trello": "*",
+      "q": "*"
     },
     "license": "BSD",
     "private": true
