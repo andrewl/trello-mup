@@ -1,17 +1,20 @@
-mindmup_load = function(mindmup_file) {
-  mindmup = false;
-  if (mindmup_config.src_file) {
-    mindmup_data = require('fs').readFileSync(mindmup_file);
-    mindmup = JSON.parse(mindmup_data);
-    console.log("Mindmup loaded from " + mindmup_file);
-  }
+mindmup_load = function(mindmup_src_file) {
+  var mindmup = false;
+  mindmup_data = require('fs').readFileSync(mindmup_src_file);
+  mindmup = JSON.parse(mindmup_data);
+  console.log("Mindmup loaded from " + mindmup_src_file);
   return mindmup;
 };
 
 mindmup_save = function(mindmup_config, mindmup) {
-  require('fs').writeFile(mindmup_config.src_file, JSON.stringify(mindmup, null, 2), function(err) {
-    if (err) throw err;
-    console.log('Mindmup saved to ' + mindmup_config.src_file);
+  return new RSVP.Promise(function(fulfill, reject) {
+    require('fs').writeFile(mindmup_config.src_file, JSON.stringify(mindmup, null, 2), function(err) {
+      if (err) {
+        reject(err);
+      } else {
+        fulfill(mindmup_config.src_file);
+      }
+    });
   });
 };
 
@@ -73,6 +76,8 @@ colour_mindmup_from_trello = function(trello, what) {
           mindmup_set_colour(what, '#FFB6C1');
         } else if (board.name == 'Code Review') {
           mindmup_set_colour(what, '#ffff00');
+        } else if (board.name == 'Review') {
+          mindmup_set_colour(what, '#ffff00');
         } else if (board.name == 'Dev Test') {
           mindmup_set_colour(what, '#ffff00');
         } else if (board.name == 'Awaiting Release') {
@@ -81,7 +86,11 @@ colour_mindmup_from_trello = function(trello, what) {
           mindmup_set_colour(what, '#ffff00');
         } else if (board.name == 'Passed UAT') {
           mindmup_set_colour(what, '#00ff00');
+        } else if (board.name == 'Ready to deploy') {
+          mindmup_set_colour(what, '#00ff00');
         } else if (board.name == 'Deployed to Live') {
+          mindmup_set_colour(what, '#00ff00');
+        } else if (board.name == 'Done') {
           mindmup_set_colour(what, '#00ff00');
         }
         fulfill(what);
@@ -92,7 +101,9 @@ colour_mindmup_from_trello = function(trello, what) {
 };
 
 //Sets mindmup colours based on trello list
-trello_mup_update = function(trello, mindmup) {
+trello_mup_update = function(trello, mindmup_configs) {
+  var mindmup_config = mindmup_configs[config_idx];
+  var mindmup = mindmup_load(mindmup_config.src_file);
   var child_node_updates = [];
   mindmup_children_map(mindmup, function(who) {
     mindmup_children_map(who, function(how) {
@@ -104,7 +115,14 @@ trello_mup_update = function(trello, mindmup) {
 
   return RSVP.all(child_node_updates)
     .then(function(child_nodes) {
-      mindmup_save(mindmup_config, mindmup);
+      mindmup_save(mindmup_config, mindmup)
+        .then(function(filename) {
+          console.log('saved ' + filename);
+          config_idx++;
+          if (config_idx < mindmup_configs.length) {
+            trello_mup_update(trello, mindmup_configs);
+          }
+        });
     }, function(error) {
       console.log(error);
     });
@@ -164,11 +182,9 @@ var Trello = require("node-trello");
 require("./config/trello-mup.config");
 var trello = new Trello(trello_config.key, trello_config.token);
 
-for (config_idx = 0; config_idx < mindmup_configs.length; config_idx++) {}
-config_idx = 0;
-var mindmup_config = mindmup_configs[config_idx];
-var mindmup = mindmup_load(mindmup_config.src_file);
-trello_mup_update(trello, mindmup)
+var config_idx = 0;
+
+trello_mup_update(trello, mindmup_configs)
   .then(null,
     function(error) {
       console.log('An Error Occurred');
