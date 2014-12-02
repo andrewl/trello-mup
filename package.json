@@ -4,9 +4,8 @@
     "description": "Trello MindMup Integration",
     "main": "trello-mup.js",
     "dependencies": {
-      "nodegit": "0.1.4",
       "node-trello": "*",
-      "q": "*"
+      "rsvp": "3.*"
     },
     "license": "BSD",
     "private": true
