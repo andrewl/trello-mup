@@ -20,10 +20,10 @@ mindmup_save = function(mindmup_config, mindmup) {
 
 mindmup_get_attachment = function(mindmup_object) {
   if (mindmup_object.attr === undefined) {
-    return;
+    return false;
   }
   if (mindmup_object.attr.attachment === undefined) {
-    return;
+    return false;
   }
   return mindmup_object.attr.attachment;
 };
@@ -31,6 +31,7 @@ mindmup_get_attachment = function(mindmup_object) {
 mindmup_set_colour = function(mindmup_object, colour) {
   console.log("Setting colour for " + mindmup_object.title + " to " + colour);
   mindmup_object.attr.style.background = colour;
+  console.log("Colour set");
 };
 
 mindmup_walk_tree = function(mindmup_object, fn) {
@@ -59,18 +60,29 @@ mindmup_children_map = function(mindmup_object, fn) {
 
 colour_mindmup_from_trello = function(trello, what) {
   var promise = new RSVP.Promise(function(fulfill, reject) {
-    card_url = what.attr.attachment.content;
+    attachment = mindmup_get_attachment(what);
+    if (!attachment) {
+      reject("Failed to retrieve attachment");
+      return;
+    }
+    card_url = attachment.content;
     url_parts = card_url.split('/');
     card_id = url_parts[url_parts.length - 2];
     trello.get("/1/cards/" + card_id, function(err, card) {
       if (err) {
         console.log(err);
         reject(err);
+        return;
+      }
+      if (typeof card.idList == 'undefined') {
+        reject("Failed to get card from " + card_url);
+        return;
       }
       trello.get("/1/lists/" + card.idList, function(err, board) {
         if (err) {
           console.log(err);
           reject(err);
+          return;
         }
         if (board.name == 'Doing') {
           mindmup_set_colour(what, '#FFB6C1');
@@ -108,13 +120,19 @@ trello_mup_update = function(trello, mindmup_configs) {
   mindmup_children_map(mindmup, function(who) {
     mindmup_children_map(who, function(how) {
       mindmup_children_map(how, function(what) {
-        child_node_updates.push(trello_mup_update_single(what, trello));
+        node = trello_mup_update_single(what, trello);
+        if (node) {
+          child_node_updates.push(node);
+        }
       });
     });
   });
 
+  console.log("Processing " + child_node_updates.length + " nodes");
+
   return RSVP.all(child_node_updates)
     .then(function(child_nodes) {
+      debugger;
       mindmup_save(mindmup_config, mindmup)
         .then(function(filename) {
           console.log('saved ' + filename);
@@ -124,6 +142,8 @@ trello_mup_update = function(trello, mindmup_configs) {
           }
         });
     }, function(error) {
+      debugger;
+      console.log("an error occurred");
       console.log(error);
     });
 
@@ -132,6 +152,7 @@ trello_mup_update = function(trello, mindmup_configs) {
 trello_mup_update_single = function(child_node, trello) {
   attachment = mindmup_get_attachment(child_node);
   if (attachment) {
+    console.log(attachment);
     if (attachment.content == 'backlog') {
       return new RSVP.Promise(function(fulfill, reject) {
         add_mindmup_to_trello(trello, child_node).then(function(child_node) {
@@ -146,6 +167,7 @@ trello_mup_update_single = function(child_node, trello) {
       });
     }
   }
+  return 0;
 };
 
 add_mindmup_to_trello = function(trello, mindmup_node) {
