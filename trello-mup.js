@@ -1,3 +1,6 @@
+//@todo - document methods
+//@todo - move the mindmup_ methods into a sep module
+
 mindmup_load = function(mindmup_src_file) {
   var mindmup = false;
   mindmup_data = require('fs').readFileSync(mindmup_src_file);
@@ -82,6 +85,7 @@ colour_mindmup_from_trello = function(trello, what) {
           reject(err);
           return;
         }
+        //@todo - put this in configuration
         if (board.name == 'Doing') {
           mindmup_set_colour(what, '#FFB6C1');
         } else if (board.name == 'Code Review') {
@@ -114,12 +118,14 @@ colour_mindmup_from_trello = function(trello, what) {
 
 //Sets mindmup colours based on trello list
 trello_mup_update = function(trello, mindmup_configs) {
-  var mindmup_config = mindmup_configs[config_idx];
+  mindmup_config = mindmup_configs[config_idx];
   mindmup = mindmup_load(mindmup_config.src_file);
   var child_node_updates = [];
+  parent_node_titles = {};
   mindmup_children_map(mindmup, function(who) {
     mindmup_children_map(who, function(how) {
       mindmup_children_map(how, function(what) {
+        parent_node_titles[what.id] = how.title;
         node = trello_mup_update_single(what, trello);
         if (node) {
           child_node_updates.push(node);
@@ -185,7 +191,11 @@ trello_mup_update_single = function(child_node, trello) {
 
 add_mindmup_to_trello = function(trello, mindmup_node) {
   var promise = new RSVP.Promise(function(fulfill, reject) {
-    new_card_title = "{_" + mindmup_config.project_name + "} " + mindmup_node.title + " [_]";
+    parent_title = '';
+    if (parent_node_titles[mindmup_node.id] !== undefined) {
+      parent_title = " [" + parent_node_titles[mindmup_node.id] + "]";
+    }
+    new_card_title = "{_" + mindmup_config.project_name + "} " + mindmup_node.title + parent_title;
     console.log("Adding " + new_card_title);
     trello.post("/1/cards/", {
         name: new_card_title,
@@ -202,7 +212,8 @@ add_mindmup_to_trello = function(trello, mindmup_node) {
               attachment: {
                 contentType: "text/html",
                 content: card.url
-              }
+              },
+              style: {}
             };
           }
         });
@@ -217,6 +228,8 @@ var Trello = require("node-trello");
 require("./config/trello-mup.config");
 var trello = new Trello(trello_config.key, trello_config.token);
 var mindmup = '';
+var mindmup_config = {};
+var parent_node_titles = [];
 var config_idx = 0;
 
 trello_mup_update(trello, mindmup_configs)
