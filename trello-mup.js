@@ -34,7 +34,6 @@ mindmup_get_attachment = function(mindmup_object) {
 mindmup_set_colour = function(mindmup_object, colour) {
   console.log("Setting colour for " + mindmup_object.title + " to " + colour);
   mindmup_object.attr.style.background = colour;
-  console.log("Colour set");
 };
 
 mindmup_walk_tree = function(mindmup_object, fn) {
