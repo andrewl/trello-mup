@@ -5,7 +5,8 @@
     "main": "trello-mup.js",
     "dependencies": {
       "node-trello": "*",
-      "rsvp": "3.*"
+      "rsvp": "3.*",
+      "sleep": "*"
     },
     "license": "BSD",
     "private": true

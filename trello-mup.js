@@ -67,10 +67,15 @@ colour_mindmup_from_trello = function(trello, what) {
       reject("Failed to retrieve attachment");
       return;
     }
+    if (typeof attachment.content == 'undefined') {
+      reject("Item has no content in attachment");
+      return;
+    }
     card_url = attachment.content;
     url_parts = card_url.split('/');
     card_id = url_parts[url_parts.length - 2];
     trello.get("/1/cards/" + card_id, function(err, card) {
+      sleep.usleep(500000);
       if (err) {
         reject(err);
         return;
@@ -80,6 +85,7 @@ colour_mindmup_from_trello = function(trello, what) {
         return;
       }
       trello.get("/1/lists/" + card.idList, function(err, board) {
+        sleep.usleep(500000);
         if (err) {
           reject(err);
           return;
@@ -139,7 +145,6 @@ trello_mup_update = function(trello, mindmup_configs) {
     .then(function(child_nodes) {
       mindmup_save(mindmup_config, mindmup)
         .then(function(filename) {
-          console.log('saved ' + filename);
           config_idx++;
           if (config_idx < mindmup_configs.length) {
             trello_mup_update(trello, mindmup_configs);
@@ -202,6 +207,7 @@ add_mindmup_to_trello = function(trello, mindmup_node) {
       },
       function(err, card) {
         if (err) {
+          console.log(err);
           reject(err);
         }
         var mindmup_id = mindmup_node.id;
@@ -222,6 +228,7 @@ add_mindmup_to_trello = function(trello, mindmup_node) {
   return promise;
 };
 
+var sleep = require('sleep');
 var RSVP = require('rsvp');
 var Trello = require("node-trello");
 require("./config/trello-mup.config");
