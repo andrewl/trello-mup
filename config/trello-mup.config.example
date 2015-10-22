@@ -1,8 +1,12 @@
 trello_config = {
-  key: 'YOUR-TRELLO-KEY',
-  token: 'YOUR-TRELLO-TOKEN'
+  key: 'YOUR TRELLO KEY',
+  token: 'YOUR APP TOKEN',
 }
 
-mindmup_config = {
-  src_file: 'PATH-TO-MINDMUP'
-}
+mindmup_configs = [
+{
+  new_card_list: 'ID OF LIST TO ADD CARD TO',
+  project_name: 'PROJECT NAME',
+  src_file: 'MINDMUP FILE'
+},
+]
